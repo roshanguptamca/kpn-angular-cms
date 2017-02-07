@@ -1,0 +1,10 @@
+/IntershopStudio
+.project
+.idea
+*.iml
+intershop/developer_home/Products.xml
+intershop/developer_home/Prices.xml
+*.lnk
+.DS_Store
+target
+kpn-angular-cms.iml
