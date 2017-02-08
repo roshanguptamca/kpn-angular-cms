@@ -1,95 +1,31 @@
-var kpnCmsApp = angular.module('kpnCmsApp', [ 'ngRoute' ]);
+angular
+		.module('kpnCmsApp', [ 'ngRoute', 'auth', 'home', 'message', 'navigation' ])
+		.config(
 
-kpnCmsApp.config(function($routeProvider, $httpProvider,$locationProvider) {
+				function($routeProvider, $httpProvider, $locationProvider) {
 
-    $locationProvider.html5Mode(true);
+					$locationProvider.html5Mode(true);
 
-	$routeProvider.when('/documentation', {
-		templateUrl : 'documentation.html',
-		controller : 'documentationController',
-		controllerAs: 'controller'
-	})
-	$routeProvider.when('/home', {
-		templateUrl : 'home.html',
-		controller : 'home',
-		controllerAs: 'controller'
-	}).when('/login', {
-		templateUrl : 'login.html',
-		controller : 'navigation',
-		controllerAs: 'controller'
-	}).otherwise('/');
+					$routeProvider.when('/', {
+						templateUrl : 'js/home/home.html',
+						controller : 'homeController',
+						controllerAs : 'controller'
+					}).when('/message', {
+						templateUrl : 'js/message/message.html',
+						controller : 'message',
+						controllerAs : 'controller'
+					}).when('/login', {
+						templateUrl : 'js/navigation/login.html',
+						controller : 'navigation',
+						controllerAs : 'controller'
+					}).otherwise('/');
 
-	$httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+					$httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
-}).controller('navigation',
+				}).run(function(auth) {
 
-		function($rootScope, $http, $location, $route) {
-			
-			var self = this;
+			// Initialize auth module with the home page and login/logout path
+			// respectively
+			auth.init('/', '/login', '/logout');
 
-			self.tab = function(route) {
-				return $route.current && route === $route.current.controller;
-			};
-
-			var authenticate = function(credentials, callback) {
-
-				var headers = credentials ? {
-					authorization : "Basic "
-							+ btoa(credentials.username + ":"
-									+ credentials.password)
-				} : {};
-
-				$http.get('user', {
-					headers : headers
-				}).then(function(response) {
-					if (response.data.name) {
-						$rootScope.authenticated = true;
-					} else {
-						$rootScope.authenticated = false;
-					}
-					callback && callback($rootScope.authenticated);
-				}, function() {
-					$rootScope.authenticated = false;
-					callback && callback(false);
-				});
-
-			}
-
-			authenticate();
-
-			self.credentials = {};
-			self.login = function() {
-				authenticate(self.credentials, function(authenticated) {
-					if (authenticated) {
-						console.log("Login succeeded")
-						$location.path("/");
-						self.error = false;
-						$rootScope.authenticated = true;
-					} else {
-						console.log("Login failed")
-						$location.path("/login");
-						self.error = true;
-						$rootScope.authenticated = false;
-					}
-				})
-			};
-
-			self.logout = function() {
-				$http.post('logout', {}).finally(function() {
-					$rootScope.authenticated = false;
-					$location.path("/");
-				});
-			}
-
-		}).controller('home', function($http) {
-	var self = this;
-	$http.get('/resource/').then(function(response) {
-		self.greeting = response.data;
-	})
-})
-.controller('messageController', function($http) {
-	var self = this;
-	$http.get('/resource/').then(function(response) {
-		self.greeting = response.data;
-	});
-});
+		});

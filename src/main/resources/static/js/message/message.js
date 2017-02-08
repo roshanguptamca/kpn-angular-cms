@@ -1,8 +1,5 @@
-kpnCmsApp.controller('documentationController', function($http) {
+angular.module('message', []).controller('message', function($http) {
 	var self = this;
-
-	self.pageHeader = "Documentation";
-
 	$http.get('/resource/').then(function(response) {
 		self.greeting = response.data;
 	});
